@@ -4,6 +4,7 @@
 
 # Web公開ファイル
 !index.html
+!CNAME
 !assets/
 !assets/**
 
