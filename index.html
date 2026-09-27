@@ -8,16 +8,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-NSZS3JGV');</script>
 <!-- End Google Tag Manager -->
-
-<!-- Microsoft Clarity -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xg61zflodc");
-</script>
-<!-- End Microsoft Clarity -->
+<!-- GA4・Microsoft Clarity はGTM（GTM-NSZS3JGV）経由で配信。イベントは本文末尾の dataLayer.push で送信 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -474,9 +465,61 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="contact-row">
     <div class="ci"><span class="ci-label">Location</span><span class="ci-val">神奈川県 横浜市</span></div>
   </div>
-  <a class="contact-btn" href="https://forms.gle/QyVxCuzR67GvpTj8A" target="_blank" rel="noopener">CONTACT US</a>
+  <a class="contact-btn" href="https://forms.gle/QyVxCuzR67GvpTj8A" target="_blank" rel="noopener" data-click-location="footer">CONTACT US</a>
   <p class="copy">© 2026 山田 慎一 — All rights reserved.</p>
 </footer>
+
+<!-- GTM用 dataLayer イベント送信 -->
+<script>
+(function () {
+  window.dataLayer = window.dataLayer || [];
+  function push(obj) { window.dataLayer.push(obj); }
+
+  // お問い合わせボタンのクリック
+  document.querySelectorAll('.contact-btn').forEach(function (a) {
+    a.addEventListener('click', function () {
+      push({
+        event: 'contact_click',
+        link_url: a.href,
+        link_text: a.textContent.trim(),
+        click_location: a.getAttribute('data-click-location') || ''
+      });
+    });
+  });
+
+  // 資格・受講歴の詳細を開いた
+  document.querySelectorAll('details.cert').forEach(function (d) {
+    d.addEventListener('toggle', function () {
+      if (!d.open) return;
+      var name = d.querySelector('.cert-name');
+      push({
+        event: 'cert_detail_open',
+        cert_name: name ? name.textContent.trim() : ''
+      });
+    });
+  });
+
+  // 各セクションの表示（1ページビューにつき各セクション1回）
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        var num = e.target.querySelector('.sec-num');
+        var en = e.target.querySelector('.sec-en');
+        var ja = e.target.querySelector('.sec-ja');
+        push({
+          event: 'section_view',
+          section_number: num ? num.textContent.trim() : '',
+          section_id: en ? en.textContent.trim() : '',
+          section_name: ja ? ja.textContent.trim() : ''
+        });
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.sec-title').forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
 
 </body>
 </html>
